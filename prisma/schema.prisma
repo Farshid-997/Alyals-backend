@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(uuid())
+  name      String
+  email     String       @unique
+  password  String
+  image     String?
+  role      Role?        @default(user)
+  contactNo String
+  address   String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  reviews   UserReview[] // Reviews written by the user
+  orders    Order[] // Orders placed by the user
+  Blog      Blog[]
+  Booking   Booking[]
+
+  @@map("user")
+}
+
+model Service {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  image       String?
+  UserReview  UserReview[] // Establish the relationship with user reviews.
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Booking     Booking[]
+
+  @@map("service")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  products    Product[] // Products belonging to the category
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("category")
+}
+
+model Product {
+  id           String         @id @default(uuid())
+  name         String
+  description  String?
+  image        String?
+  price        Float // Changed to use Float for price
+  Category     Category?      @relation(fields: [categoryId], references: [id])
+  categoryId   String?
+  stock        String?
+  productstate String
+  quantity     Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  OrderProduct OrderProduct[]
+
+  @@map("product")
+}
+
+model UserReview {
+  id        String   @id @default(uuid())
+  rating    Int
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("user_review")
+}
+
+model Order {
+  id           String         @id @default(uuid())
+  userId       String
+  totalAmount  Float
+  firstName    String
+  lastName     String
+  status       OrderStatus
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  orderProduct OrderProduct[] // Use a one-to-many relationship for order products
+  address      String
+  city         String
+  postcode     String
+  note         String?
+  phone        String
+  User         User           @relation(fields: [userId], references: [id])
+
+  @@map("order")
+}
+
+model OrderProduct {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int // Include the 'quantity' field
+
+  @@map("order_product")
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  serviceId String
+  service   Service       @relation(fields: [serviceId], references: [id])
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  date      DateTime // The date and time of the appointment
+  status    BookingStatus // Status of the booking (e.g., confirmed, canceled, etc.)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("booking")
+}
+
+model Blog {
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+  image      String?
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   String
+  authorName String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("blog")
+}
+
+enum Role {
+  superadmin
+  admin
+  user
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  shipped
+  delivered
+  canceled
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  canceled
+  completed
+}

@@ -1,5 +1,5 @@
 import { Prisma, Product } from "@prisma/client";
-import { IGenericResponse } from "../../../interface/common";
+import { IGenericResponse, IResponse } from "../../../interface/common";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { paginationHelpers } from "../../../utils/paginationHelper";
 import prisma from "../../../utils/prisma";
@@ -84,6 +84,68 @@ const getAllProducts = async (
       page,
       limit,
     },
+    data: result,
+  };
+};
+
+//get product without pagination
+
+const getProducts = async (
+  filters: IProductFilterRequest
+): Promise<IResponse<Product[]>> => {
+  const { searchTerm, ...filterData } = filters;
+
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: productSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => {
+        if (productRelationalFields.includes(key)) {
+          return {
+            [productRelationalFieldsMapper[key]]: {
+              id: (filterData as any)[key],
+            },
+          };
+        } else {
+          return {
+            [key]: {
+              equals: (filterData as any)[key],
+            },
+          };
+        }
+      }),
+    });
+  }
+
+  const whereConditions: Prisma.ProductWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.product.findMany({
+    include: {
+      Category: true,
+    },
+    where: whereConditions,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const total = await prisma.product.count({
+    where: whereConditions,
+  });
+
+  return {
     data: result,
   };
 };
@@ -176,5 +238,6 @@ export const productService = {
   updateIntoDB,
   deleteFromDB,
   getAllProducts,
+  getProducts,
   getProductsbyCategoryService,
 };

@@ -3,8 +3,9 @@ import app from "./app";
 import config from "./config/envConfig";
 
 async function bootstrap() {
-  const server: Server = app.listen(config.port, () => {
-    console.log(`Server running on port ${config.port}`);
+  const port = 5000;
+  const server: Server = app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
   });
 
   const exitHandler = () => {

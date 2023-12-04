@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Softkey is Running! 🏇");
+  res.send("Alyals Server is Running! 🦅");
 });
 //global error handler
 app.use(globalErrorHandler);

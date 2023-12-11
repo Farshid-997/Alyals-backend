@@ -84,6 +84,29 @@ const deleteOrder: RequestHandler = catchAsync(
   }
 );
 
+const productCheckoutCount: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const startDate = req.query.start
+      ? new Date(req.query.startDate as string)
+      : new Date();
+
+    const endDate = req.query.endDate
+      ? new Date(req.query.endDate as string)
+      : new Date();
+
+    const result = await orderService.getProductCheckoutsForDay(
+      startDate,
+      endDate
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Count per Product successfully",
+      data: result,
+    });
+  }
+);
+
 export const orderController = {
   createOrder,
   getOrders,
@@ -91,4 +114,5 @@ export const orderController = {
   updateOrder,
   getOrderByUserId,
   deleteOrder,
+  productCheckoutCount,
 };

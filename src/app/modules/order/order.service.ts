@@ -35,8 +35,6 @@ const createOrder = async (data: Order): Promise<Order> => {
         quantity: product.quantity, // Include the quantity field
       }));
 
-      console.log("orderProductData", orderProductData);
-
       // Create the order and associated order products within the transaction
       const createdOrder = await prisma.order.create({
         data: {
@@ -198,6 +196,28 @@ const deleteOrder = async (id: string): Promise<Order> => {
   return result;
 };
 
+const getProductCheckoutsForDay = async (startDate: Date, endDate: Date) => {
+  const startOfDay = new Date(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate()
+  );
+  const endOfDay = new Date(
+    endDate.getFullYear(),
+    endDate.getMonth(),
+    endDate.getDate() + 1
+  );
+
+  return prisma.order.findMany({
+    where: {
+      createdAt: {
+        gte: startOfDay,
+        lt: endOfDay,
+      },
+    },
+  });
+};
+
 export const orderService = {
   createOrder,
   getAllOrders,
@@ -205,4 +225,5 @@ export const orderService = {
   getAllOrdersByUserId,
   updateOrder,
   deleteOrder,
+  getProductCheckoutsForDay,
 };

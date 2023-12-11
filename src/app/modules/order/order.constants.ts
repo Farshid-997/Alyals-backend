@@ -2,6 +2,7 @@ export const orderFilterableFields: string[] = [
   "searchTerm",
   "status",
   "userId",
+  "createdAt",
   // Add more filter fields as needed
 ];
 
@@ -19,5 +20,6 @@ export type IOrderFilterRequest = {
   searchTerm?: string | undefined;
   status?: string | undefined;
   userId?: string | undefined;
+  createdAt?: string | undefined;
   // Add more filter fields as needed
 };

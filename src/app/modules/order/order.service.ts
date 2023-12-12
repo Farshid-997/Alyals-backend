@@ -1,5 +1,5 @@
 import { Order, Prisma } from "@prisma/client";
-import { isWithinInterval, subDays, subMonths } from "date-fns";
+import moment from "moment";
 import { IGenericResponse } from "../../../interface/common";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { paginationHelpers } from "../../../utils/paginationHelper";
@@ -197,48 +197,35 @@ const deleteOrder = async (id: string): Promise<Order> => {
   return result;
 };
 
-const getProductCheckoutsForDay = async ({
-  startDate,
-  endDate,
-}: {
-  startDate?: string;
-  endDate?: string;
-}) => {
+
+
+export const getProductCheckoutsForDay = async () => {
+  const previousMonth = moment()
+    .month(moment().month() - 1)
+    .set("date", 1)
+    .format("YYYY-MM-DD HH:mm:ss");
+
   try {
-    const orders = await prisma.order.findMany();
-    console.log("orders",orders)
-    const last7DaysCount = orders.filter((order) =>
-      isWithinInterval(new Date(order?.createdAt), {
-        start: subDays(new Date(), 7),
-        end: new Date(),
-      })
-    ).length;
+    const orders = await prisma.order.aggregate({
+      where: { createdAt: { gte: new Date(previousMonth) } },
+      project: {
+        month: { $month: { date: "$createdAt" } },
+        sales: true,
+      } as {
+        month: { $month: { date: string } };
+        sales: boolean;
+      },
+      groupBy: {
+        month: true,
+      },
+      count: true,
+    });
 
-    const last1MonthCount = orders.filter((order) =>
-      isWithinInterval(new Date(order?.createdAt), {
-        start: subMonths(new Date(), 1),
-        end: new Date(),
-      })
-    ).length;
-
-    let selectedDateRangeCount = 0;
-    if (startDate && endDate) {
-      selectedDateRangeCount = orders.filter((order) =>
-        isWithinInterval(new Date(order?.createdAt), {
-          start: new Date(startDate),
-          end: new Date(endDate),
-        })
-      ).length;
-    }
-
-    return {
-      last7DaysCount,
-      last1MonthCount,
-      selectedDateRangeCount,
-    };
+    // Process the result as needed
+    return orders;
   } catch (error) {
-    console.error(error);
-    throw new Error("Internal Server Error");
+    // Handle the error
+    throw error;
   }
 };
 
@@ -249,5 +236,5 @@ export const orderService = {
   getAllOrdersByUserId,
   updateOrder,
   deleteOrder,
-  getProductCheckoutsForDay,
+ 
 };

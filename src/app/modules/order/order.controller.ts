@@ -86,24 +86,17 @@ const deleteOrder: RequestHandler = catchAsync(
 
 const productCheckoutCount: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    const startDate = req.query.start
-      ? new Date(req.query.startDate as string)
-      : new Date();
-
-    const endDate = req.query.endDate
-      ? new Date(req.query.endDate as string)
-      : new Date();
-
-    const result = await orderService.getProductCheckoutsForDay(
-      startDate,
-      endDate
-    );
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Count per Product successfully",
-      data: result,
-    });
+    try {
+      const { startDate, endDate } = req.query;
+      const orderCount = await orderService.getProductCheckoutsForDay({
+        startDate: startDate as string,
+        endDate: endDate as string,
+      });
+      res.json(orderCount);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   }
 );
 

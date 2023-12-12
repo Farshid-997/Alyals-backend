@@ -20,24 +20,12 @@ model User {
   updatedAt DateTime     @updatedAt
   reviews   UserReview[] // Reviews written by the user
   orders    Order[] // Orders placed by the user
-  Blog      Blog[]
-  Booking   Booking[]
+ 
+ 
 
   @@map("user")
 }
 
-model Service {
-  id          String       @id @default(uuid())
-  name        String
-  description String?
-  image       String?
-  UserReview  UserReview[] // Establish the relationship with user reviews.
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  Booking     Booking[]
-
-  @@map("service")
-}
 
 model Category {
   id          String    @id @default(uuid())
@@ -74,8 +62,8 @@ model UserReview {
   content   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  service   Service  @relation(fields: [serviceId], references: [id])
-  serviceId String
+  
+  
   userId    String
   user      User     @relation(fields: [userId], references: [id])
 
@@ -98,8 +86,21 @@ model Order {
   note         String?
   phone        String
   User         User           @relation(fields: [userId], references: [id])
-
+  OrderCount   OrderCount[]
   @@map("order")
+}
+model OrderCount{
+  id           String         @id @default(uuid())
+  orderId      String 
+
+  count        Int
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  Order         Order @relation(fields: [orderId], references: [id])
+
+  @@map("orderCounts")
 }
 
 model OrderProduct {
@@ -113,33 +114,6 @@ model OrderProduct {
   @@map("order_product")
 }
 
-model Booking {
-  id        String        @id @default(uuid())
-  serviceId String
-  service   Service       @relation(fields: [serviceId], references: [id])
-  userId    String
-  user      User          @relation(fields: [userId], references: [id])
-  date      DateTime // The date and time of the appointment
-  status    BookingStatus // Status of the booking (e.g., confirmed, canceled, etc.)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  @@map("booking")
-}
-
-model Blog {
-  id         String   @id @default(uuid())
-  title      String
-  content    String
-  image      String?
-  author     User     @relation(fields: [authorId], references: [id])
-  authorId   String
-  authorName String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@map("blog")
-}
 
 enum Role {
   superadmin

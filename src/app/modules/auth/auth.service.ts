@@ -54,7 +54,7 @@ const loginUserService = async (
   payload: ILoginUser
 ): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
-  console.log("loging try");
+
   const isUserExist = await getByEmailFromDB(payload?.email);
   if (!isUserExist) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User does not exist");

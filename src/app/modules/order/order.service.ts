@@ -1,4 +1,5 @@
 import { Order, Prisma } from "@prisma/client";
+import { isWithinInterval, subDays, subMonths } from "date-fns";
 import { IGenericResponse } from "../../../interface/common";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { paginationHelpers } from "../../../utils/paginationHelper";
@@ -196,26 +197,49 @@ const deleteOrder = async (id: string): Promise<Order> => {
   return result;
 };
 
-const getProductCheckoutsForDay = async (startDate: Date, endDate: Date) => {
-  const startOfDay = new Date(
-    startDate.getFullYear(),
-    startDate.getMonth(),
-    startDate.getDate()
-  );
-  const endOfDay = new Date(
-    endDate.getFullYear(),
-    endDate.getMonth(),
-    endDate.getDate() + 1
-  );
+const getProductCheckoutsForDay = async ({
+  startDate,
+  endDate,
+}: {
+  startDate?: string;
+  endDate?: string;
+}) => {
+  try {
+    const orders = await prisma.order.findMany();
+    console.log("orders",orders)
+    const last7DaysCount = orders.filter((order) =>
+      isWithinInterval(new Date(order?.createdAt), {
+        start: subDays(new Date(), 7),
+        end: new Date(),
+      })
+    ).length;
 
-  return prisma.order.findMany({
-    where: {
-      createdAt: {
-        gte: startOfDay,
-        lt: endOfDay,
-      },
-    },
-  });
+    const last1MonthCount = orders.filter((order) =>
+      isWithinInterval(new Date(order?.createdAt), {
+        start: subMonths(new Date(), 1),
+        end: new Date(),
+      })
+    ).length;
+
+    let selectedDateRangeCount = 0;
+    if (startDate && endDate) {
+      selectedDateRangeCount = orders.filter((order) =>
+        isWithinInterval(new Date(order?.createdAt), {
+          start: new Date(startDate),
+          end: new Date(endDate),
+        })
+      ).length;
+    }
+
+    return {
+      last7DaysCount,
+      last1MonthCount,
+      selectedDateRangeCount,
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Internal Server Error");
+  }
 };
 
 export const orderService = {

@@ -3,12 +3,12 @@ import { reviewsController } from "./reviews.controller";
 
 const router = express.Router();
 
-router.post("/reviews/create-reviews", reviewsController.insertIntoDB);
-router.get("/reviews", reviewsController.getreviews);
-router.get("/reviews/:id", reviewsController.getreviewsById);
+router.post("/create-reviews", reviewsController.insertIntoDB);
+router.get("/", reviewsController.getreviews);
+router.get("/:id", reviewsController.getreviewsById);
 
-router.delete("/reviews/:id", reviewsController.deleteFromDB);
+router.delete("/:id", reviewsController.deleteFromDB);
 
-router.patch("/reviews/:id", reviewsController.updateIntoDB);
+router.patch("/:id", reviewsController.updateIntoDB);
 
 export const reviewsRoutes = router;

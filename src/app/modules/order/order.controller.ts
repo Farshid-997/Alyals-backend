@@ -61,7 +61,7 @@ const getOrderById: RequestHandler = catchAsync(
 
 const updateOrder: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    console.log("check", req.params.id, req.body);
+    
     const result = await orderService.updateOrder(req.params.id, req.body);
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -84,9 +84,21 @@ const deleteOrder: RequestHandler = catchAsync(
   }
 );
 
-const productCheckoutForDay: RequestHandler = catchAsync(
+const orderCheckoutForDay: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    const countResult=await orderService.getProductCheckoutsForDay()
+    const countResult=await orderService.getOrderCheckoutsForDay()
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Count get successfully",
+      data: countResult,
+    });
+  }
+);
+const orderCheckoutForWeek: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const countResult = await orderService.getOrderCheckoutsForWeek();
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -104,5 +116,6 @@ export const orderController = {
   updateOrder,
   getOrderByUserId,
   deleteOrder,
-  productCheckoutForDay,
+  orderCheckoutForDay,
+  orderCheckoutForWeek,
 };

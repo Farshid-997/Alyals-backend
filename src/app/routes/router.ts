@@ -13,30 +13,29 @@ const router = express.Router();
 
 const moduleRoutes = [
   {
-    path: "/",
+    path: "/auth",
     route: authRoutes,
   },
   {
-    path: "/",
+    path: "/users",
     route: userRoutes,
   },
   {
-    path: "/",
+    path: "/categories",
     route: categoryRoutes,
   },
-  
 
   {
-    path: "/",
+    path: "/products",
     route: productRoutes,
   },
   {
-    path: "/",
+    path: "/reviews",
     route: reviewsRoutes,
   },
 
   {
-    path: "/",
+    path: "/orders",
     route: orderRoutes,
   },
 ];

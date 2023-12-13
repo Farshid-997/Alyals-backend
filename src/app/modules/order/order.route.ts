@@ -3,11 +3,13 @@ import { orderController } from "./order.controller";
 
 const router = express.Router();
 
-router.post("/orders", orderController.createOrder);
-router.get("/orders", orderController.getOrders);
-router.get("/orders/:id", orderController.getOrderById);
-router.get("/orders/user/:id", orderController.getOrderByUserId);
-router.delete("/orders/:id", orderController.deleteOrder);
-router.patch("/orders/:id", orderController.updateOrder);
-router.get("/orders/product-count", orderController.productCheckoutForDay);
+router.post("/create-order", orderController.createOrder);
+router.get("/", orderController.getOrders);
+// router.get("/:id", orderController.getOrderById);
+router.get("/user/:id", orderController.getOrderByUserId);
+router.delete("/:id", orderController.deleteOrder);
+router.patch("/:id", orderController.updateOrder);
+router.get("/order-count", orderController.orderCheckoutForDay);
+
+router.get("/order-count-week", orderController.orderCheckoutForWeek);
 export const orderRoutes = router;

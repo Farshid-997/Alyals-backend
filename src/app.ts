@@ -24,6 +24,8 @@ app.use("/api/v1", router);
 app.get("/", (req: Request, res: Response) => {
   res.send("Alyals Server is Running! 🦅");
 });
+
+
 //global error handler
 app.use(globalErrorHandler);
 //handle not found

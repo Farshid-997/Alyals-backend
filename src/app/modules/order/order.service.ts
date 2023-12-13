@@ -199,34 +199,48 @@ const deleteOrder = async (id: string): Promise<Order> => {
 
 
 
-export const getProductCheckoutsForDay = async () => {
+export const getProductCheckoutsForDay = async ():Promise<Order[]> => {
   const previousMonth = moment()
     .month(moment().month() - 1)
     .set("date", 1)
     .format("YYYY-MM-DD HH:mm:ss");
 
-  try {
-    const orders = await prisma.order.aggregate({
-      where: { createdAt: { gte: new Date(previousMonth) } },
-      project: {
-        month: { $month: { date: "$createdAt" } },
-        sales: true,
-      } as {
-        month: { $month: { date: string } };
-        sales: boolean;
+
+    const orders = await prisma.order.findMany({
+      where: { createdAt: { gte: previousMonth } },
+      select: {
+        createdAt: true,
+        // Add other fields you need
       },
-      groupBy: {
-        month: true,
-      },
-      count: true,
     });
 
+    console.log("orders",orders)
+
     // Process the result as needed
-    return orders;
-  } catch (error) {
-    // Handle the error
-    throw error;
-  }
+    
+
+  // try {
+  //   const orders = await prisma.order.aggregate({
+  //     where: { createdAt: { gte: new Date(previousMonth) } },
+  //     project: {
+  //       month: { $month: { date: "$createdAt" } },
+  //       sales: true,
+  //     } as {
+  //       month: { $month: { date: string } };
+  //       sales: boolean;
+  //     },
+  //     groupBy: {
+  //       month: true,
+  //     },
+  //     count: true,
+  //   });
+
+  //   // Process the result as needed
+  //   return orders;
+  // } catch (error) {
+  //   // Handle the error
+  //   throw error;
+  // }
 };
 
 export const orderService = {
@@ -236,5 +250,5 @@ export const orderService = {
   getAllOrdersByUserId,
   updateOrder,
   deleteOrder,
- 
+  getProductCheckoutsForDay,
 };

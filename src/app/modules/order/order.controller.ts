@@ -84,21 +84,18 @@ const deleteOrder: RequestHandler = catchAsync(
   }
 );
 
-// const productCheckoutCount: RequestHandler = catchAsync(
-//   async (req: Request, res: Response) => {
-//     try {
-//       const { startDate, endDate } = req.query;
-//       const orderCount = await orderService.getProductCheckoutsForDay({
-//         startDate: startDate as string,
-//         endDate: endDate as string,
-//       });
-//       res.json(orderCount);
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: "Internal Server Error" });
-//     }
-//   }
-// );
+const productCheckoutForDay: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const countResult=await orderService.getProductCheckoutsForDay()
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Count get successfully",
+      data: countResult,
+    });
+  }
+);
 
 export const orderController = {
   createOrder,
@@ -107,5 +104,5 @@ export const orderController = {
   updateOrder,
   getOrderByUserId,
   deleteOrder,
- 
+  productCheckoutForDay,
 };

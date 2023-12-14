@@ -96,18 +96,9 @@ const orderCheckoutForDay: RequestHandler = catchAsync(
     });
   }
 );
-const orderCheckoutForWeek: RequestHandler = catchAsync(
-  async (req: Request, res: Response) => {
-    const countResult = await orderService.getOrderCheckoutsForWeek();
 
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Order Count get successfully",
-      data: countResult,
-    });
-  }
-);
+
+
 
 export const orderController = {
   createOrder,
@@ -117,5 +108,5 @@ export const orderController = {
   getOrderByUserId,
   deleteOrder,
   orderCheckoutForDay,
-  orderCheckoutForWeek,
-};
+ 
+}

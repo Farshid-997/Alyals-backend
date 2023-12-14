@@ -11,5 +11,7 @@ router.delete("/:id", orderController.deleteOrder);
 router.patch("/:id", orderController.updateOrder);
 router.get("/order-count", orderController.orderCheckoutForDay);
 
-router.get("/order-count-week", orderController.orderCheckoutForWeek);
+
+
+
 export const orderRoutes = router;

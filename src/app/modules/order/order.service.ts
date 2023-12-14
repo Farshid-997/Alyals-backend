@@ -10,6 +10,7 @@ import {
   orderRelationalFieldsMapper,
   orderSearchableFields,
 } from "./order.constants";
+import { OrderCount } from "./order.interface";
 
 const createOrder = async (data: Order): Promise<Order> => {
   const {
@@ -110,7 +111,7 @@ const getAllOrders = async (
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.order.findMany({
-    // Include related models if needed
+   
     where: whereConditions,
     include: {
       orderProduct: {
@@ -197,111 +198,33 @@ const deleteOrder = async (id: string): Promise<Order> => {
   return result;
 };
 
-
-
-export const getOrderCheckoutsForDay = async (): Promise<
+const getOrderCheckoutsForDay = async (): Promise<
   { createdAt: Date; count: number }[]
 > => {
   const previousMonth = moment()
-    .month(moment().month() - 1)
-    .set("date", 1)
-    .toDate();
+    .subtract(1, "month")
+    .startOf("month")
+    .format("YYYY-MM-DD");
 
-  const ordersWithCount = await prisma?.order.aggregate({
-    where: { createdAt: { gte: previousMonth } },
-    _count: { createdAt: true },
-  });
+  const ordersWithCounts = await prisma.$queryRaw<OrderCount[]>`
+    SELECT DATE("createdAt") as "createdAt", COUNT(*) as "count"
+  FROM "order"
+  WHERE "createdAt"::timestamp >= ${previousMonth}::timestamp
+  GROUP BY DATE("createdAt")
+  `;
 
-  console.log("ordersWithCount", ordersWithCount);
+  console.log("ordersWithCounts", ordersWithCounts);
 
-  const result = [
-    {
-      createdAt: new Date(),
-      count: ordersWithCount._count.createdAt,
-    },
-  ];
+  const result = ordersWithCounts.map((group) => ({
+    createdAt: new Date(group.createdAt),
+    count: Number(group.count),
+  }));
 
   console.log("result", result);
 
   return result;
 };
 
-
-export const getOrderCheckoutsForWeek = async (): Promise<
-  { createdAt: Date; count: number }[]
-> => {
-  const previousWeekStart = moment()
-    .subtract(1, "weeks")
-    .startOf("week")
-    .toDate();
-  const previousWeekEnd = moment().subtract(1, "weeks").endOf("week").toDate();
-
-  console.log("Previous Week Start:", previousWeekStart);
-  console.log("Previous Week End:", previousWeekEnd);
-
-  const currentWeekStart = moment().startOf("week").toDate();
-  const currentWeekEnd = moment().endOf("week").toDate();
-
-  console.log("Current Week Start:", currentWeekStart);
-  console.log("Current Week End:", currentWeekEnd);
-
-  const ordersWithCount = await prisma?.order.aggregate({
-    where: {
-      createdAt: {
-        gte: previousWeekStart,
-        lt: previousWeekEnd,
-      },
-    },
-    _count: { createdAt: true },
-  });
-
-  console.log("Orders with Count for Previous Week:", ordersWithCount);
-
-  const result: { createdAt: Date; count: number }[] = [];
-
-  if (ordersWithCount) {
-    result.push({
-      createdAt: previousWeekStart,
-      count: ordersWithCount._count.createdAt,
-    });
-  } else {
-    result.push({
-      createdAt: previousWeekStart,
-      count: 0,
-    });
-  }
-
-  const currentWeekOrdersWithCount = await prisma?.order.aggregate({
-    where: {
-      createdAt: {
-        gte: currentWeekStart,
-        lt: currentWeekEnd,
-      },
-    },
-    _count: { createdAt: true },
-  });
-
-  console.log(
-    "Orders with Count for Current Week:",
-    currentWeekOrdersWithCount
-  );
-
-  if (currentWeekOrdersWithCount) {
-    result.push({
-      createdAt: currentWeekStart,
-      count: currentWeekOrdersWithCount._count.createdAt,
-    });
-  } else {
-    result.push({
-      createdAt: currentWeekStart,
-      count: 0,
-    });
-  }
-
-  console.log("Week Result:", result);
-
-  return result;
-};
 
 export const orderService = {
   createOrder,
@@ -311,5 +234,6 @@ export const orderService = {
   updateOrder,
   deleteOrder,
   getOrderCheckoutsForDay,
-  getOrderCheckoutsForWeek,
+  
+ 
 };

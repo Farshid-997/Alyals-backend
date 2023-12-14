@@ -230,31 +230,75 @@ export const getOrderCheckoutsForDay = async (): Promise<
 export const getOrderCheckoutsForWeek = async (): Promise<
   { createdAt: Date; count: number }[]
 > => {
-  const previousWeek = moment().subtract(1, "weeks").startOf("week").toDate();
+  const previousWeekStart = moment()
+    .subtract(1, "weeks")
+    .startOf("week")
+    .toDate();
+  const previousWeekEnd = moment().subtract(1, "weeks").endOf("week").toDate();
 
-  console.log("p",previousWeek)
-  const currentWeek = moment().startOf("week").toDate();
+  console.log("Previous Week Start:", previousWeekStart);
+  console.log("Previous Week End:", previousWeekEnd);
+
+  const currentWeekStart = moment().startOf("week").toDate();
+  const currentWeekEnd = moment().endOf("week").toDate();
+
+  console.log("Current Week Start:", currentWeekStart);
+  console.log("Current Week End:", currentWeekEnd);
 
   const ordersWithCount = await prisma?.order.aggregate({
     where: {
       createdAt: {
-        gte: previousWeek,
-        lt: currentWeek,
+        gte: previousWeekStart,
+        lt: previousWeekEnd,
       },
     },
     _count: { createdAt: true },
   });
 
-  console.log("ordersWithCount", ordersWithCount);
+  console.log("Orders with Count for Previous Week:", ordersWithCount);
 
-  const result = [
-    {
-      createdAt: new Date(),
+  const result: { createdAt: Date; count: number }[] = [];
+
+  if (ordersWithCount) {
+    result.push({
+      createdAt: previousWeekStart,
       count: ordersWithCount._count.createdAt,
-    },
-  ];
+    });
+  } else {
+    result.push({
+      createdAt: previousWeekStart,
+      count: 0,
+    });
+  }
 
-  console.log("week result", result);
+  const currentWeekOrdersWithCount = await prisma?.order.aggregate({
+    where: {
+      createdAt: {
+        gte: currentWeekStart,
+        lt: currentWeekEnd,
+      },
+    },
+    _count: { createdAt: true },
+  });
+
+  console.log(
+    "Orders with Count for Current Week:",
+    currentWeekOrdersWithCount
+  );
+
+  if (currentWeekOrdersWithCount) {
+    result.push({
+      createdAt: currentWeekStart,
+      count: currentWeekOrdersWithCount._count.createdAt,
+    });
+  } else {
+    result.push({
+      createdAt: currentWeekStart,
+      count: 0,
+    });
+  }
+
+  console.log("Week Result:", result);
 
   return result;
 };

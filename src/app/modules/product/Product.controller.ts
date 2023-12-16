@@ -40,20 +40,7 @@ const getproducts: RequestHandler = catchAsync(
   }
 );
 
-const getAllProducts: RequestHandler = catchAsync(
-  async (req: Request, res: Response) => {
-    const filters = pick(req.query, productFilterableFields);
-    const result = await productService.getProducts(filters);
 
-    sendResponse<Product[]>(res, {
-      statusCode: 200,
-      success: true,
-      message: "Product fetched successfully",
-      // meta: result.meta,
-      data: result.data,
-    });
-  }
-);
 
 const getproductsbyCategory: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
@@ -111,5 +98,5 @@ export const productController = {
   deleteFromDB,
   getproducts,
   getproductsbyCategory,
-  getAllProducts,
+ 
 };

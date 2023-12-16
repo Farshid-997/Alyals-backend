@@ -1,5 +1,5 @@
 import { Prisma, Product } from "@prisma/client";
-import { IGenericResponse, IResponse } from "../../../interface/common";
+import { IGenericResponse } from "../../../interface/common";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { paginationHelpers } from "../../../utils/paginationHelper";
 import prisma from "../../../utils/prisma";
@@ -17,12 +17,91 @@ const insertIntoDB = async (data: Product): Promise<Product> => {
   return result;
 };
 
+
+// const getAllProducts = async (
+//   filters: IProductFilterRequest,
+//   options: IPaginationOptions
+// ): Promise<IGenericResponse<Product[]>> => {
+//   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+//   const { searchTerm, ...filterData } = filters;
+
+//   const andConditions = [];
+
+//   if (searchTerm) {
+//     andConditions.push({
+//       OR: productSearchableFields.map((field) => ({
+//         [field]: {
+//           contains: searchTerm,
+//           mode: "insensitive",
+//         },
+//       })),
+//     });
+//   }
+
+//   if (Object.keys(filterData).length > 0) {
+//     andConditions.push({
+//       AND: Object.keys(filterData).map((key) => {
+//         if (productRelationalFields.includes(key)) {
+//           return {
+//             [productRelationalFieldsMapper[key]]: {
+//               id: (filterData as any)[key],
+//             },
+//           };
+//         } else {
+//           return {
+//             [key]: {
+//               equals: (filterData as any)[key],
+//             },
+//           };
+//         }
+//       }),
+//     });
+//   }
+
+//   const whereConditions: Prisma.ProductWhereInput =
+//     andConditions.length > 0 ? { AND: andConditions } : {};
+
+//   const result = await prisma.product.findMany({
+//     include: {
+//       Category: true,
+      
+//     },
+//     where: whereConditions,
+//     skip,
+//     take: limit,
+//     orderBy:
+//       options.sortBy && options.sortOrder
+//         ? { [options.sortBy]: options.sortOrder }
+//         : {
+//             createdAt: "desc",
+//           },
+//   });
+//   const total = await prisma.product.count({
+//     where: whereConditions,
+//   });
+
+//   return {
+//     meta: {
+//       total,
+//       page,
+//       limit,
+//     },
+//     data: result,
+//   };
+// };
+
+
+
+
+
+// get by category
+
 const getAllProducts = async (
   filters: IProductFilterRequest,
   options: IPaginationOptions
 ): Promise<IGenericResponse<Product[]>> => {
   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
-  const { searchTerm, ...filterData } = filters;
+ const { searchTerm, minPrice, maxPrice,productstate, ...filterData } = filters;
 
   const andConditions = [];
 
@@ -36,6 +115,28 @@ const getAllProducts = async (
       })),
     });
   }
+
+  if (minPrice !== undefined) {
+    andConditions.push({
+      price: {
+        gte: Number(minPrice),
+      },
+    });
+  }
+
+  if (maxPrice !== undefined) {
+    andConditions.push({
+      price: {
+        lte: Number(maxPrice),
+      },
+    });
+  }
+
+   if (productstate !== undefined) {
+     andConditions.push({
+       productstate: String(productstate),
+     });
+   }
 
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
@@ -88,69 +189,8 @@ const getAllProducts = async (
   };
 };
 
-//get product without pagination
 
-const getProducts = async (
-  filters: IProductFilterRequest
-): Promise<IResponse<Product[]>> => {
-  const { searchTerm, ...filterData } = filters;
 
-  const andConditions = [];
-
-  if (searchTerm) {
-    andConditions.push({
-      OR: productSearchableFields.map((field) => ({
-        [field]: {
-          contains: searchTerm,
-          mode: "insensitive",
-        },
-      })),
-    });
-  }
-
-  if (Object.keys(filterData).length > 0) {
-    andConditions.push({
-      AND: Object.keys(filterData).map((key) => {
-        if (productRelationalFields.includes(key)) {
-          return {
-            [productRelationalFieldsMapper[key]]: {
-              id: (filterData as any)[key],
-            },
-          };
-        } else {
-          return {
-            [key]: {
-              equals: (filterData as any)[key],
-            },
-          };
-        }
-      }),
-    });
-  }
-
-  const whereConditions: Prisma.ProductWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-
-  const result = await prisma.product.findMany({
-    include: {
-      Category: true,
-    },
-    where: whereConditions,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  const total = await prisma.product.count({
-    where: whereConditions,
-  });
-
-  return {
-    data: result,
-  };
-};
-
-// get by category
 const getProductsbyCategoryService = async (
   id: string,
   options: IPaginationOptions
@@ -199,6 +239,7 @@ const getProductById = async (id: string): Promise<Product | null> => {
     },
     include: {
       Category: true,
+      
     },
   });
   return result;
@@ -238,6 +279,6 @@ export const productService = {
   updateIntoDB,
   deleteFromDB,
   getAllProducts,
-  getProducts,
+ 
   getProductsbyCategoryService,
 };

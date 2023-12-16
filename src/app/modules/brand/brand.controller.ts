@@ -2,60 +2,61 @@ import { Request, Response } from "express";
 import httpStatus from "http-status";
 import catchAsync from "../../../utils/catchAsync";
 import sendResponse from "../../../utils/sendResponse";
-import { CategoryService } from "./category.service";
+import { BrandService } from "./brand.service";
+
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 
-  const result = await CategoryService.insertIntoDB(req.body);
+  const result = await BrandService.insertIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Category created successfully",
+    message: "Brand created successfully",
     data: result,
   });
 });
 
 const getAllFromDb = catchAsync(async (req: Request, res: Response) => {
-  const result = await CategoryService.getAllFromDb();
+  const result = await BrandService.getAllFromDb();
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Category fetched successfully",
+    message: "Brand fetched successfully",
     data: result,
   });
 });
 
 const getUserById = catchAsync(async (req: Request, res: Response) => {
-  const result = await CategoryService.getCategoryById(req.params.id);
+  const result = await BrandService.getBrandById(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Category fetched successfully",
+    message: "Brand fetched successfully",
     data: result,
   });
 });
 
 const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await CategoryService.deleteFromDB(req.params.id);
+  const result = await BrandService.deleteFromDB(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Category deleted successfully",
+    message: "Brand deleted successfully",
     data: result,
   });
 });
 
 const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await CategoryService.updateIntoDB(req.params.id, req.body);
+  const result = await BrandService.updateIntoDB(req.params.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Category updated successfully",
+    message: "Brand updated successfully",
     data: result,
   });
 });
 
-export const categoryController = {
+export const BrandController = {
   insertIntoDB,
   getAllFromDb,
   getUserById,

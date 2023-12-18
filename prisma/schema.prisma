@@ -52,7 +52,9 @@ model Product {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   OrderProduct OrderProduct[]
-  Brand        Brand[]
+  Brand        Brand?      @relation(fields: [brandId], references: [id])
+  brandId      String?
+
   @@map("product")
 }
 
@@ -61,11 +63,11 @@ model Brand {
   id   String @id @default(uuid())
   name String
   description String
-  productId String
+ 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  Product Product @relation(fields:[productId],references:[id])
+  products  Product[]
   @@map("brand")
 }
 

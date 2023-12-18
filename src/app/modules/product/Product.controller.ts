@@ -61,6 +61,26 @@ const getproductsbyCategory: RequestHandler = catchAsync(
   }
 );
 
+
+// const getproductsbyBrand: RequestHandler = catchAsync(
+//   async (req: Request, res: Response) => {
+//     const { brandId } = req.params;
+//     const options = pick(req.query, ["limit", "page"]);
+//     const result = await productService.getProductsbyBrandService(
+//       brandId,
+//       options
+//     );
+
+//     sendResponse<Product[]>(res, {
+//       statusCode: 200,
+//       success: true,
+//       message: "products with associated brand data fetched successfully",
+//       meta: result.meta,
+//       data: result.data,
+//     });
+//   }
+// );
+
 const getProductById = catchAsync(async (req: Request, res: Response) => {
   const result = await productService.getProductById(req.params.id);
   sendResponse(res, {
@@ -98,5 +118,5 @@ export const productController = {
   deleteFromDB,
   getproducts,
   getproductsbyCategory,
- 
+  // getproductsbyBrand,
 };

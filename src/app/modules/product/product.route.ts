@@ -6,12 +6,15 @@ const router = express.Router();
 router.post("/create-product", productController.insertIntoDB);
 router.get("/", productController.getproducts);
 
-// router.get("/all-products", productController.getAllProducts);
+
 router.get("/:id", productController.getProductById);
+
 router.get(
   "/:categoryId/category",
   productController.getproductsbyCategory
 );
+
+// router.get("/:brandId/brand", productController.getproductsbyBrand);
 
 router.delete("/:id", productController.deleteFromDB);
 

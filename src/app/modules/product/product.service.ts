@@ -101,7 +101,7 @@ const getAllProducts = async (
   options: IPaginationOptions
 ): Promise<IGenericResponse<Product[]>> => {
   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
- const { searchTerm, minPrice, maxPrice,productstate, ...filterData } = filters;
+ const { searchTerm,productstate, ...filterData } = filters;
 
   const andConditions = [];
 
@@ -116,21 +116,21 @@ const getAllProducts = async (
     });
   }
 
-  if (minPrice !== undefined) {
-    andConditions.push({
-      price: {
-        gte: Number(minPrice),
-      },
-    });
-  }
+  // if (minPrice !== undefined) {
+  //   andConditions.push({
+  //     price: {
+  //       gte: Number(minPrice),
+  //     },
+  //   });
+  // }
 
-  if (maxPrice !== undefined) {
-    andConditions.push({
-      price: {
-        lte: Number(maxPrice),
-      },
-    });
-  }
+  // if (maxPrice !== undefined) {
+  //   andConditions.push({
+  //     price: {
+  //       lte: Number(maxPrice),
+  //     },
+  //   });
+  // }
 
    if (productstate !== undefined) {
      andConditions.push({

@@ -194,6 +194,9 @@ const deleteOrder = async (id: string): Promise<Order> => {
     where: {
       id,
     },
+    include: {
+      User:true
+    },
   });
   return result;
 };

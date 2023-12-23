@@ -131,6 +131,23 @@ const deleteFromDB = async (id: string): Promise<User> => {
    where: {
      id: id,
    },
+
+   select: {
+     id: true,
+     name: true,
+     email: true,
+     role: true,
+     password: true,
+     contactNo: true,
+     address: true,
+     image: true,
+
+     reviews: true,
+     orders: true,
+    
+     createdAt: true,
+     updatedAt: true,
+   },
  });
 
  return deletedUser;

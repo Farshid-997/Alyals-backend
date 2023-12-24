@@ -43,6 +43,9 @@ const deleteFromDB = async (id: string): Promise<UserReview> => {
     where: {
       id,
     },
+    include: {
+      user:true
+    },
   });
   return result;
 };

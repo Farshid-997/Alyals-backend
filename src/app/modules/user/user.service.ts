@@ -109,55 +109,28 @@ const updateRoleToAdmin = async (id: string): Promise<User> => {
 
 const deleteFromDB = async (id: string): Promise<User> => {
   
-
- const existingOrders = await prisma.order.findMany({
-   where: {
-     userId: id,
-   },
- });
-
- console.log(existingOrders)
-
- if (existingOrders.length > 0) {
-   // Handle the case where there are existing orders
-   console.error(
-     `Cannot delete user with ID ${id}. There are existing orders associated.`
-   );
-  
- }
-
- // No existing orders, proceed with user deletion
+// No existing orders, proceed with user deletion
  const deletedUser = await prisma.user.delete({
    where: {
      id: id,
    },
+  
+  
 
-   select: {
-     id: true,
-     name: true,
-     email: true,
-     role: true,
-     password: true,
-     contactNo: true,
-     address: true,
-     image: true,
-
-     reviews: true,
-     orders: true,
-    
-     createdAt: true,
-     updatedAt: true,
-   },
+   
  });
 
  return deletedUser;
 };
 
+
+
+
 export const userService = {
   getAllUser,
   getUserById,
   updateIntoDB,
-  deleteFromDB,
+ deleteFromDB,
   getSingleUser,
   updateRoleToAdmin,
 };

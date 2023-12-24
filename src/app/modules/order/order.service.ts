@@ -216,7 +216,7 @@ const getOrderCheckoutsForDay = async (): Promise<
   GROUP BY DATE("createdAt")
   `;
 
-  console.log("ordersWithCounts", ordersWithCounts);
+ 
 
   const result = ordersWithCounts.map((group) => ({
     createdAt: new Date(group.createdAt),

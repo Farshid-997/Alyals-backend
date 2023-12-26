@@ -1,11 +1,14 @@
 -- CreateEnum
+CREATE TYPE "PaymentStatus" AS ENUM ('pending', 'succeeded', 'failed', 'refunded');
+
+-- CreateEnum
 CREATE TYPE "Role" AS ENUM ('superadmin', 'admin', 'user');
 
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('pending', 'confirmed', 'shipped', 'delivered', 'canceled');
 
 -- CreateEnum
-CREATE TYPE "BookingStatus" AS ENUM ('pending', 'confirmed', 'canceled', 'completed');
+CREATE TYPE "OrderBookingStatus" AS ENUM ('Received', 'notReceived');
 
 -- CreateTable
 CREATE TABLE "user" (
@@ -21,18 +24,6 @@ CREATE TABLE "user" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "service" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "image" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "service_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -55,12 +46,24 @@ CREATE TABLE "product" (
     "price" DOUBLE PRECISION NOT NULL,
     "categoryId" TEXT,
     "stock" TEXT,
+    "productstate" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
-  
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "brandId" TEXT,
+
+    CONSTRAINT "product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "brand" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "product_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "brand_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -70,10 +73,22 @@ CREATE TABLE "user_review" (
     "content" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "serviceId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "user_review_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "notification" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "notification_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -91,8 +106,21 @@ CREATE TABLE "order" (
     "postcode" TEXT NOT NULL,
     "note" TEXT,
     "phone" TEXT NOT NULL,
+    "OrderBookingStatus" "OrderBookingStatus" NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "order_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "orderCounts" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "count" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "orderCounts_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -106,30 +134,15 @@ CREATE TABLE "order_product" (
 );
 
 -- CreateTable
-CREATE TABLE "booking" (
+CREATE TABLE "payment" (
     "id" TEXT NOT NULL,
-    "serviceId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
-    "status" "BookingStatus" NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "paymentStatus" "PaymentStatus" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "booking_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "blog" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "image" TEXT,
-    "authorId" TEXT NOT NULL,
-    "authorName" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "blog_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "payment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -139,13 +152,19 @@ CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 ALTER TABLE "product" ADD CONSTRAINT "product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_review" ADD CONSTRAINT "user_review_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "service"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "product" ADD CONSTRAINT "product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "brand"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "user_review" ADD CONSTRAINT "user_review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "notification" ADD CONSTRAINT "notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "order" ADD CONSTRAINT "order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "orderCounts" ADD CONSTRAINT "orderCounts_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "order_product" ADD CONSTRAINT "order_product_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -154,10 +173,4 @@ ALTER TABLE "order_product" ADD CONSTRAINT "order_product_orderId_fkey" FOREIGN 
 ALTER TABLE "order_product" ADD CONSTRAINT "order_product_productId_fkey" FOREIGN KEY ("productId") REFERENCES "product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "booking" ADD CONSTRAINT "booking_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "service"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "booking" ADD CONSTRAINT "booking_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "blog" ADD CONSTRAINT "blog_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "payment" ADD CONSTRAINT "payment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

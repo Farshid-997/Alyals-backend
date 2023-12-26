@@ -34,7 +34,7 @@ const createOrder = async (data: Order): Promise<Order> => {
      
       const orderProductData = orderProduct.map((product: any) => ({
         productId: product.productId,
-        quantity: product.quantity, // Include the quantity field
+        quantity: product.quantity, 
       }));
 
       // Create the order and associated order products within the transaction

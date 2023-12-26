@@ -6,13 +6,13 @@ import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import router from "./app/routes/router";
 
 const app: Application = express();
-// app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+// app.use(
+//   cors({
+//     origin: true,
+//     credentials: true,
+//   })
+// );
 
 
 app.use(cookieParser());

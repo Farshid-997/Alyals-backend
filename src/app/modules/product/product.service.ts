@@ -20,13 +20,15 @@ const insertIntoDB = async (data: Product): Promise<Product> => {
 
 
 
+
+
+
 const getAllProducts = async (
   filters: IProductFilterRequest,
   options: IPaginationOptions
 ): Promise<IGenericResponse<Product[]>> => {
   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
- const { searchTerm, ...filterData } = filters;
-
+  const { searchTerm, ...filterData } = filters;
 
   const andConditions = [];
 
@@ -42,54 +44,63 @@ const getAllProducts = async (
   }
 
   if (Object.keys(filterData).length > 0) {
-     andConditions.push({
-       AND: Object.keys(filterData).map((key) => {
-         if (productRelationalFields.includes(key)) {
-           const mappedField = productRelationalFieldsMapper[key];
-           if (mappedField) {
-             return {
-               [mappedField]: {
-                 id: (filterData as any)[key],
-               },
-             };
-           } else {
-             throw new Error(`Mapping not found for field: ${key}`);
-           }
-         } else if (key === "minPrice" || key === "maxPrice") {
-           return {
-             price: {
-               gte:
-                 key === "minPrice"
-                   ? parseFloat((filterData as any)[key])
-                   : undefined,
-               lte:
-                 key === "maxPrice"
-                   ? parseFloat((filterData as any)[key])
-                   : undefined,
-             },
-           };
-         } else if (key === "inStock" && (filterData as any)[key]) {
-           return {
-             stock: {
-               equals: "in-stock",
-             },
-           };
-         } else if (key === "outOfStock" && (filterData as any)[key]) {
-           return {
-             stock: {
-               equals: "out-stock",
-             },
-           };
-         } else {
-           return {
-             [key]: {
-               equals: (filterData as any)[key],
-             },
-           };
-         }
-       }),
-     });
-   }
+    const filterConditions: any[] = Object.keys(filterData).map((key) => {
+      if (productRelationalFields.includes(key)) {
+        const mappedField = productRelationalFieldsMapper[key];
+        if (mappedField) {
+          return {
+            [mappedField]: {
+              id: (filterData as any)[key],
+            },
+          };
+        } else {
+          throw new Error(`Mapping not found for field: ${key}`);
+        }
+      } else if (key === "minPrice" || key === "maxPrice") {
+        const priceCondition: Record<string, any> = {
+          price: {},
+        };
+
+        if (key === "minPrice") {
+          priceCondition.price.gte = parseFloat((filterData as any)[key]);
+        } else if (key === "maxPrice") {
+          const maxPrice = parseFloat((filterData as any)[key]);
+          // Check if maxPrice is a valid number before adding the condition
+          if (!isNaN(maxPrice)) {
+            priceCondition.price.lte = maxPrice;
+          }
+        }
+
+        // Only add the priceCondition if it has valid conditions
+        if (Object.keys(priceCondition.price).length > 0) {
+          return priceCondition;
+        }
+      } else if (key === "inStock" && (filterData as any)[key]) {
+        return {
+          stock: {
+            equals: "in-stock",
+          },
+        };
+      } else if (key === "outOfStock" && (filterData as any)[key]) {
+        return {
+          stock: {
+            equals: "out-stock",
+          },
+        };
+      } else {
+        return {
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        };
+      }
+    });
+
+    // Filter out undefined values from filterConditions array
+    const validFilterConditions = filterConditions.filter(Boolean);
+
+    andConditions.push(...validFilterConditions);
+  }
 
   const whereConditions: Prisma.ProductWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
@@ -121,6 +132,9 @@ const getAllProducts = async (
     data: result,
   };
 };
+
+
+
 
 
 

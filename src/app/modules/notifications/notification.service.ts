@@ -3,7 +3,7 @@ import { Notification, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const sendNotification = async (data: Notification) => {
-  const { userId } = data; // Assuming 'userId' is part of the Notification object
+  const { userId } = data; 
 
   // Check the number of notifications for the user
   const userNotificationCount = await prisma.notification.count({
@@ -34,6 +34,10 @@ const sendNotification = async (data: Notification) => {
   });
   return newNotification;
 };
+
+
+
+
 
 const sendNotificationToAllUsers = async (
   data: Notification

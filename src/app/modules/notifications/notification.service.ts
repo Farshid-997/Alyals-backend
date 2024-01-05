@@ -73,7 +73,7 @@ const deleteAllUserNotifications = async (userId: string): Promise<unknown> => {
   return result;
 };
 
-//TODO:implement the corn job to delete the notifications after 24 hours
+
 
 export const notificationService = {
   sendNotification,

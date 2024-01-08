@@ -22,7 +22,7 @@ model User {
   orders    Order[] 
   Payment   Payment[]
   Notification     Notification[]
-
+ Blog             Blog[]
   @@map("user")
 }
 
@@ -158,6 +158,20 @@ model Payment {
   @@map("payment")
 }
 
+
+model Blog {
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+  image      String?
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   String
+  authorName String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("blog")
+}
 enum PaymentStatus {
   pending
   succeeded

@@ -7,6 +7,7 @@ import { orderRoutes } from "../modules/order/order.route";
 import { productRoutes } from "../modules/product/product.route";
 import { reviewsRoutes } from "../modules/reviews/reviews.route";
 
+import { blogsRoutes } from "../modules/Blog/blog.route";
 import { orderProductRoutes } from "../modules/OrderProduct/OrderProduct.route";
 import { brandRoutes } from "../modules/brand/brand.route";
 import { notificationRoutes } from "../modules/notifications/notification.route";
@@ -54,6 +55,11 @@ const moduleRoutes = [
   {
     path: "/notifications",
     route: notificationRoutes,
+  },
+
+  {
+    path: "/blogs",
+    route: blogsRoutes,
   },
 ];
 

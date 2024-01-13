@@ -15,7 +15,7 @@ router.get(
   productController.getproductsbyCategory
 );
 
-// router.get("/:brandId/brand", productController.getproductsbyBrand);
+router.get("/:brandId/brand", productController.getproductsbyBrand);
 
 router.delete("/:id", productController.deleteFromDB);
 

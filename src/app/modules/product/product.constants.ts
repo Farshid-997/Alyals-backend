@@ -12,8 +12,8 @@ export const productSearchableFields: string[] = ["name", "description"];
 export const productRelationalFields: string[] = ["categoryId","brandId"];
 
 export const productRelationalFieldsMapper: { [key: string]: string } = {
-  categoryId: "category",
-  brandId:"brand"
+  categoryId: "Category",
+  brandId:"Brand"
 };
 export type IProductFilterRequest = {
   searchTerm?: string | undefined;

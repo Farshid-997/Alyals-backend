@@ -19,16 +19,12 @@ const insertIntoDB = async (data: Product): Promise<Product> => {
 
 
 
-
-
-
-
 const getAllProducts = async (
   filters: IProductFilterRequest,
   options: IPaginationOptions
 ): Promise<IGenericResponse<Product[]>> => {
   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
-  const { searchTerm, ...filterData } = filters;
+  const { searchTerm, brand,category,...filterData } = filters;
 
   const andConditions = [];
 
@@ -40,6 +36,25 @@ const getAllProducts = async (
           mode: "insensitive",
         },
       })),
+    });
+  }
+  if (brand) {
+    andConditions.push({
+      Brand: {
+        name: {
+          equals: brand,
+        },
+      },
+    });
+  }
+
+  if (category) {
+    andConditions.push({
+      Category: {
+        name: {
+          equals: category,
+        },
+      },
     });
   }
 
@@ -87,7 +102,10 @@ const getAllProducts = async (
             equals: "out-stock",
           },
         };
-      } else {
+      } 
+      
+      
+      else {
         return {
           [key]: {
             equals: (filterData as any)[key],
@@ -108,6 +126,7 @@ const getAllProducts = async (
   const result = await prisma.product.findMany({
     include: {
       Category: true,
+      Brand:true
     },
     where: whereConditions,
     skip,
@@ -149,6 +168,7 @@ const getProductsbyCategoryService = async (
   if (id) {
     andConditions.push({
       categoryId: id,
+     
     });
   }
 
@@ -181,46 +201,47 @@ const getProductsbyCategoryService = async (
 };
 
 
-// const getProductsbyBrandService = async (
-//   id: string,
-//   options: IPaginationOptions
-// ): Promise<IGenericResponse<Product[]>> => {
-//   const { limit, page, skip } = paginationHelpers.calculatePagination(options);
-//   const andConditions = [];
+const getProductsbyBrandService = async (
+  id: string,
+  options: IPaginationOptions
+): Promise<IGenericResponse<Product[]>> => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+  const andConditions = [];
 
-//   if (id) {
-//     andConditions.push({
-//       categoryId: id,
-//     });
-//   }
+  if (id) {
+    andConditions.push({
+      brandId: id,
+    });
+  }
 
-//   const whereConditions: Prisma.ProductWhereInput =
-//     andConditions.length > 0 ? { AND: andConditions } : {};
+  const whereConditions: Prisma.ProductWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
-//   const result = await prisma.product.findMany({
-//     include: {
-//       Brand: true,
-//     },
-//     skip,
-//     take: Number(limit),
+  const result = await prisma.product.findMany({
+    include: {
+      Brand: true,
 
-//     where: whereConditions,
-//   });
+    },
+    skip,
+    take: Number(limit),
 
-//   const total = await prisma.product.count({
-//     where: whereConditions,
-//   });
-//   const totalPages = Math.ceil(total / Number(limit));
-//   return {
-//     meta: {
-//       total,
-//       page,
-//       limit,
-//       totalPages,
-//     },
-//     data: result,
-//   };
-// };
+    where: whereConditions,
+  });
+
+  const total = await prisma.product.count({
+    where: whereConditions,
+  });
+  const totalPages = Math.ceil(total / Number(limit));
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages,
+    },
+    data: result,
+  };
+};
 
 const getProductById = async (id: string): Promise<Product | null> => {
   const result = await prisma.product.findUnique({
@@ -229,7 +250,7 @@ const getProductById = async (id: string): Promise<Product | null> => {
     },
     include: {
       Category: true,
-      // Brand:true
+      Brand:true
       
     },
   });
@@ -270,6 +291,6 @@ export const productService = {
   updateIntoDB,
   deleteFromDB,
   getAllProducts,
-//  getProductsbyBrandService,
+ getProductsbyBrandService,
   getProductsbyCategoryService,
 };

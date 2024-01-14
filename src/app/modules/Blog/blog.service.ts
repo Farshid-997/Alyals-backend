@@ -40,6 +40,9 @@ const deleteFromDB = async (id: string): Promise<Blog> => {
     where: {
       id,
     },
+    include: {
+      author:true
+    },
   });
   return result;
 };

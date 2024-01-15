@@ -48,6 +48,7 @@ model Product {
   categoryId   String?
   stock        String?
   productstate String
+  discount     Float?
   quantity     Int
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt

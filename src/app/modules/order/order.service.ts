@@ -223,10 +223,13 @@ const getOrderCheckoutsForDay = async (): Promise<
     count: Number(group.count),
   }));
 
-  console.log("result", result);
+  
 
   return result;
 };
+
+
+
 
 
 export const orderService = {

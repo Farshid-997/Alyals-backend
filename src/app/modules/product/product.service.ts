@@ -7,7 +7,7 @@ import {
   IProductFilterRequest,
   productRelationalFields,
   productRelationalFieldsMapper,
-  productSearchableFields,
+  productSearchableFields
 } from "./product.constants";
 
 const insertIntoDB = async (data: Product): Promise<Product> => {
